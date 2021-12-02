@@ -16,22 +16,25 @@ import javax.annotation.Nonnull;
 import lombok.AccessLevel;
 import lombok.Setter;
 import org.hl7.fhir.r4.model.Encounter;
-import org.openmrs.EncounterType;
 import org.openmrs.Visit;
+import org.openmrs.VisitAttribute;
 import org.openmrs.VisitType;
 import org.openmrs.module.fhir2.FhirConstants;
 import org.openmrs.module.fhir2.api.translators.EncounterLocationTranslator;
 import org.openmrs.module.fhir2.api.translators.EncounterPeriodTranslator;
 import org.openmrs.module.fhir2.api.translators.EncounterTranslator;
-import org.openmrs.module.fhir2.api.translators.EncounterTypeTranslator;
 import org.openmrs.module.fhir2.api.translators.PatientReferenceTranslator;
 import org.openmrs.module.fhir2.api.translators.ProvenanceTranslator;
+import org.openmrs.module.fhir2.api.util.AttributeHandlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @Setter(AccessLevel.PACKAGE)
 public class VisitTranslatorImpl extends BaseEncounterTranslator implements EncounterTranslator<Visit> {
+	
+	@Autowired
+	private AttributeHandlers attributeHandlers;
 	
 	@Autowired
 	private PatientReferenceTranslator patientReferenceTranslator;
@@ -41,9 +44,6 @@ public class VisitTranslatorImpl extends BaseEncounterTranslator implements Enco
 	
 	@Autowired
 	private ProvenanceTranslator<Visit> provenanceTranslator;
-	
-	@Autowired
-	private EncounterTypeTranslator<EncounterType> encounterTypeTranslator;
 	
 	@Autowired
 	private VisitTypeTranslatorImpl visitTypeTranslator;
@@ -74,6 +74,12 @@ public class VisitTranslatorImpl extends BaseEncounterTranslator implements Enco
 		encounter.addContained(provenanceTranslator.getCreateProvenance(visit));
 		encounter.addContained(provenanceTranslator.getUpdateProvenance(visit));
 		
+		for (VisitAttribute attribute : visit.getActiveAttributes()) {
+			attributeHandlers.getHandlersFor(Visit.class, Encounter.class, attribute.getAttributeType())
+					.forEach(
+							h -> h.toFhir(encounter, attribute));
+		}
+		
 		return encounter;
 	}
 	
@@ -98,6 +104,8 @@ public class VisitTranslatorImpl extends BaseEncounterTranslator implements Enco
 		
 		existingVisit.setPatient(patientReferenceTranslator.toOpenmrsType(encounter.getSubject()));
 		existingVisit.setLocation(encounterLocationTranslator.toOpenmrsType(encounter.getLocationFirstRep()));
+		
+		attributeHandlers.getHandlersFor(Encounter.class, Visit.class).forEach(h -> h.toOpenmrs(existingVisit, encounter));
 		
 		return existingVisit;
 	}
