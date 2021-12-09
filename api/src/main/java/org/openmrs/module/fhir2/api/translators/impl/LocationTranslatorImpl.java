@@ -99,7 +99,7 @@ public class LocationTranslatorImpl extends BaseReferenceHandlingTranslator impl
 		if (openmrsLocation.getTags() != null) {
 			for (LocationTag tag : openmrsLocation.getTags()) {
 				fhirLocation.getMeta().addTag(FhirConstants.OPENMRS_FHIR_EXT_LOCATION_TAG, tag.getName(),
-						tag.getDescription());
+				    tag.getDescription());
 			}
 		}
 		if (openmrsLocation.getParentLocation() != null) {
@@ -112,8 +112,7 @@ public class LocationTranslatorImpl extends BaseReferenceHandlingTranslator impl
 		
 		for (LocationAttribute attribute : openmrsLocation.getActiveAttributes()) {
 			attributeHandlers.getHandlersFor(org.openmrs.Location.class, Location.class, attribute.getAttributeType())
-					.forEach(
-							h -> h.toFhir(fhirLocation, attribute));
+			        .forEach(h -> h.toFhir(fhirLocation, attribute));
 		}
 		
 		return fhirLocation;
@@ -121,9 +120,9 @@ public class LocationTranslatorImpl extends BaseReferenceHandlingTranslator impl
 	
 	protected List<ContactPoint> getLocationContactDetails(@Nonnull org.openmrs.Location location) {
 		return fhirLocationDao
-				.getActiveAttributesByLocationAndAttributeTypeUuid(location,
-						propertyService.getGlobalProperty(FhirConstants.LOCATION_CONTACT_POINT_ATTRIBUTE_TYPE))
-				.stream().map(telecomTranslator::toFhirResource).collect(Collectors.toList());
+		        .getActiveAttributesByLocationAndAttributeTypeUuid(location,
+		            propertyService.getGlobalProperty(FhirConstants.LOCATION_CONTACT_POINT_ATTRIBUTE_TYPE))
+		        .stream().map(telecomTranslator::toFhirResource).collect(Collectors.toList());
 	}
 	
 	/**
@@ -137,11 +136,11 @@ public class LocationTranslatorImpl extends BaseReferenceHandlingTranslator impl
 	
 	/**
 	 * @see org.openmrs.module.fhir2.api.translators.LocationTranslator#toOpenmrsType(org.openmrs.Location,
-	 * org.hl7.fhir.r4.model.Location)
+	 *      org.hl7.fhir.r4.model.Location)
 	 */
 	@Override
 	public org.openmrs.Location toOpenmrsType(@Nonnull org.openmrs.Location openmrsLocation,
-			@Nonnull Location fhirLocation) {
+	        @Nonnull Location fhirLocation) {
 		notNull(openmrsLocation, "The existing Openmrs location should not be null");
 		notNull(fhirLocation, "The Location object should not be null");
 		
@@ -164,8 +163,8 @@ public class LocationTranslatorImpl extends BaseReferenceHandlingTranslator impl
 		}
 		
 		fhirLocation.getTelecom().stream().map(
-						contactPoint -> (LocationAttribute) telecomTranslator.toOpenmrsType(new LocationAttribute(), contactPoint))
-				.distinct().filter(Objects::nonNull).forEach(openmrsLocation::addAttribute);
+		    contactPoint -> (LocationAttribute) telecomTranslator.toOpenmrsType(new LocationAttribute(), contactPoint))
+		        .distinct().filter(Objects::nonNull).forEach(openmrsLocation::addAttribute);
 		
 		if (fhirLocation.getMeta().hasTag()) {
 			for (Coding tag : fhirLocation.getMeta().getTag()) {
@@ -176,7 +175,7 @@ public class LocationTranslatorImpl extends BaseReferenceHandlingTranslator impl
 		openmrsLocation.setParentLocation(getOpenmrsParentLocation(fhirLocation.getPartOf()));
 		
 		attributeHandlers.getHandlersFor(Location.class, org.openmrs.Location.class)
-				.forEach(h -> h.toOpenmrs(openmrsLocation, fhirLocation));
+		        .forEach(h -> h.toOpenmrs(openmrsLocation, fhirLocation));
 		
 		return openmrsLocation;
 	}

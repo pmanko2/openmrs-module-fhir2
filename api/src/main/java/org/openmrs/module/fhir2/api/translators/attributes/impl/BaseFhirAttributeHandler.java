@@ -15,8 +15,8 @@ import org.openmrs.OpenmrsObject;
 import org.openmrs.customdatatype.Customizable;
 import org.openmrs.module.fhir2.api.translators.attributes.FhirAttributeHandler;
 
-public abstract class BaseFhirAttributeHandler<T extends Customizable<?> & OpenmrsObject, U extends IAnyResource>
-		implements FhirAttributeHandler<T, U> {
+@SuppressWarnings("unused")
+public abstract class BaseFhirAttributeHandler<T extends Customizable<?> & OpenmrsObject, U extends IAnyResource> implements FhirAttributeHandler<T, U> {
 	
 	@SuppressWarnings("UnstableApiUsage")
 	protected final TypeToken<T> appliesToOpenmrsType;

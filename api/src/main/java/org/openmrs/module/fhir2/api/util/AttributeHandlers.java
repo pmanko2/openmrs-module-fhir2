@@ -1,3 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ *
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
 package org.openmrs.module.fhir2.api.util;
 
 import java.util.ArrayList;
@@ -26,21 +35,17 @@ public class AttributeHandlers {
 	
 	private final List<FhirAttributeHandler<?, ?>> handlers;
 	
-	private final Map<Class<? extends Customizable<?>>, List<FhirAttributeHandler<?, ?>>> cachedToFhirHandlers = new HashMap<>();
+	private final Map<Class<?>, List<FhirAttributeHandler<?, ?>>> cachedToFhirHandlers = new HashMap<>();
 	
-	private final Map<Class<? extends IAnyResource>, List<FhirAttributeHandler<?, ?>>> cachedToOpenmrsHandlers = new HashMap<>();
+	private final Map<Class<?>, List<FhirAttributeHandler<?, ?>>> cachedToOpenmrsHandlers = new HashMap<>();
 	
 	@Autowired
 	public AttributeHandlers(ApplicationContext context) {
 		handlers = new ArrayList(context.getBeansOfType(FhirAttributeHandler.class).values());
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <T extends Customizable<?> & OpenmrsObject, U extends IAnyResource> List<FhirAttributeHandler<T, U>> getHandlersFor(
-			Class<T> underlyingType,
-			Class<U> resourceType,
-			AttributeType<T> attributeType
-	) {
+			Class<T> underlyingType, Class<U> resourceType, AttributeType<T> attributeType) {
 		List<FhirAttributeHandler<? extends Customizable<?>, ? extends IAnyResource>> potentialHandlers;
 		if (cachedToFhirHandlers.containsKey(underlyingType)) {
 			toFhirLock.lock();
@@ -52,8 +57,7 @@ public class AttributeHandlers {
 			}
 		} else {
 			potentialHandlers = handlers.stream().filter(h -> underlyingType.isAssignableFrom(h.getAppliesToOpenmrsType()))
-					.collect(
-							Collectors.toList());
+					.collect(Collectors.toList());
 			
 			toFhirLock.lock();
 			try {
@@ -64,16 +68,13 @@ public class AttributeHandlers {
 			}
 		}
 		
-		return potentialHandlers.stream().filter(h -> h.supports((Class) resourceType, (AttributeType) attributeType))
-				.map(h -> (FhirAttributeHandler<T, U>) h)
-				.collect(Collectors.toList());
+		return potentialHandlers.stream().map(h -> (FhirAttributeHandler<T, U>) h)
+				.filter(h -> h.supports(resourceType, attributeType)).collect(Collectors.toList());
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T extends Customizable<?> & OpenmrsObject, U extends IAnyResource> List<FhirAttributeHandler<T, U>> getHandlersFor(
-			Class<U> resourceType,
-			Class<T> underlyingType
-	) {
+			Class<U> resourceType, Class<T> underlyingType) {
 		List<FhirAttributeHandler<? extends Customizable<?>, ? extends IAnyResource>> potentialHandlers;
 		if (cachedToFhirHandlers.containsKey(underlyingType)) {
 			toOpenmrsLock.lock();
@@ -85,8 +86,7 @@ public class AttributeHandlers {
 			}
 		} else {
 			potentialHandlers = handlers.stream().filter(h -> h.getAppliesToFhirType() != null)
-					.filter(h -> h.getAppliesToFhirType().isAssignableFrom(resourceType)).collect(
-							Collectors.toList());
+					.filter(h -> h.getAppliesToFhirType().isAssignableFrom(resourceType)).collect(Collectors.toList());
 			
 			toOpenmrsLock.lock();
 			try {
@@ -97,9 +97,7 @@ public class AttributeHandlers {
 			}
 		}
 		
-		return potentialHandlers.stream()
-				.map(h -> (FhirAttributeHandler<T, U>) h)
-				.collect(Collectors.toList());
+		return potentialHandlers.stream().map(h -> (FhirAttributeHandler<T, U>) h).collect(Collectors.toList());
 	}
 	
 }

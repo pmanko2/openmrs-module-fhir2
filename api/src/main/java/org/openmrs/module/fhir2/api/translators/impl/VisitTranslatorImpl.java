@@ -76,8 +76,7 @@ public class VisitTranslatorImpl extends BaseEncounterTranslator implements Enco
 		
 		for (VisitAttribute attribute : visit.getActiveAttributes()) {
 			attributeHandlers.getHandlersFor(Visit.class, Encounter.class, attribute.getAttributeType())
-					.forEach(
-							h -> h.toFhir(encounter, attribute));
+			        .forEach(h -> h.toFhir(encounter, attribute));
 		}
 		
 		return encounter;
