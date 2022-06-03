@@ -141,8 +141,8 @@ public class EncounterFhirResourceProvider implements IResourceProvider {
 			revIncludes = null;
 		}
 		
-		return encounterService.searchForEncounters(new EncounterSearchParams(date, location, participantReference,
-		        subjectReference, encounterType, id, lastUpdated, tag, hasAndListParam, sort, includes, revIncludes));
+		return encounterService.searchForEncounters(new EncounterSearchParams(date, location, participantReference, subjectReference,
+				encounterType, tag, hasAndListParam, id, lastUpdated, sort, includes, revIncludes));
 	}
 	
 	/**
