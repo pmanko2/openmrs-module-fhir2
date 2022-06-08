@@ -19,11 +19,9 @@ import ca.uhn.fhir.rest.param.ReferenceAndListParam;
 import ca.uhn.fhir.rest.param.StringAndListParam;
 import ca.uhn.fhir.rest.param.TokenAndListParam;
 import org.hl7.fhir.r4.model.Location;
+import org.openmrs.module.fhir2.api.search.param.LocationSearchParams;
 
 public interface FhirLocationService extends FhirService<Location> {
 	
-	IBundleProvider searchForLocations(StringAndListParam name, StringAndListParam city, StringAndListParam country,
-	        StringAndListParam postalCode, StringAndListParam state, TokenAndListParam tag, ReferenceAndListParam parent,
-	        TokenAndListParam id, DateRangeParam lastUpdated, HashSet<Include> includes, HashSet<Include> revIncludes,
-	        SortSpec sort);
+	IBundleProvider searchForLocations(LocationSearchParams locationSearchParams);
 }

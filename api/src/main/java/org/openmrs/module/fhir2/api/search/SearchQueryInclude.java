@@ -47,10 +47,7 @@ import org.openmrs.module.fhir2.api.FhirObservationService;
 import org.openmrs.module.fhir2.api.FhirPatientService;
 import org.openmrs.module.fhir2.api.FhirPractitionerService;
 import org.openmrs.module.fhir2.api.FhirServiceRequestService;
-import org.openmrs.module.fhir2.api.search.param.EncounterSearchParams;
-import org.openmrs.module.fhir2.api.search.param.ObservationSearchParams;
-import org.openmrs.module.fhir2.api.search.param.PropParam;
-import org.openmrs.module.fhir2.api.search.param.SearchParameterMap;
+import org.openmrs.module.fhir2.api.search.param.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -203,14 +200,15 @@ public class SearchQueryInclude<U extends IBaseResource> {
 		return includedResourcesSet;
 	}
 	
-	private IBundleProvider handleLocationReverseInclude(ReferenceAndListParam params, String targetType) {
+	private IBundleProvider handleLocationReverseInclude(ReferenceAndListParam param, String targetType) {
 		switch (targetType) {
 			case FhirConstants.LOCATION:
-				return locationService.searchForLocations(null, null, null, null, null, null, params, null, null, null, null,
-				    null);
+				LocationSearchParams locationSearchParams = new LocationSearchParams();
+				locationSearchParams.setParent(param);
+				return locationService.searchForLocations(locationSearchParams);
 			case FhirConstants.ENCOUNTER:
 				EncounterSearchParams encounterSearchParams = new EncounterSearchParams();
-				encounterSearchParams.setLocation(params);
+				encounterSearchParams.setLocation(param);
 				return encounterService.searchForEncounters(encounterSearchParams);
 		}
 		
